@@ -22,8 +22,16 @@ def export_chunks(out,target,prefix):
    if i<len(parts):nav+='<a href="'+f'{n:02d}-{i+1:03d}.html'+'">下一段 / Next part</a>'
    title=source.name+' — '+str(i)+'/'+str(len(parts))
    (folder/name).write_text(page(title,'<h1>'+html.escape(title)+'</h1>'+nav+'<pre>'+html.escape(part)+'</pre>'+nav))
+   sublinks=[];subrecords=[]
+   for j,start in enumerate(range(0,len(part),4000),1):
+    sub=part[start:start+4000];subname=f'{n:02d}-{i:03d}-{j:02d}.html';suburl=target+'/chunks/'+subname
+    subtitle=title+' / subpart '+str(j)
+    (folder/subname).write_text(page(subtitle,'<h1>'+html.escape(subtitle)+'</h1><pre>'+html.escape(sub)+'</pre><p>END OF SUBPART</p>'))
+    sublinks.append('<li><a href="'+subname+'">'+html.escape(subtitle)+'</a></li>')
+    subrecords.append({'url':suburl,'characters':len(sub),'sha256':hashlib.sha256(sub.encode()).hexdigest()})
+   (folder/name).write_text(page(title,'<h1>'+html.escape(title)+'</h1>'+nav+'<p>若正文截断，请完整读取以下短段 / If truncated, read all subparts:</p><ol>'+''.join(sublinks)+'</ol><pre>'+html.escape(part)+'</pre>'+nav))
    links.append('<li><a href="'+name+'">'+html.escape(title)+'</a></li>')
-   records.append({'part':i,'url':url,'characters':len(part),'sha256':hashlib.sha256(part.encode()).hexdigest()})
+   records.append({'part':i,'url':url,'subparts':subrecords,'characters':len(part),'sha256':hashlib.sha256(part.encode()).hexdigest()})
   source_url=target+'/chunks/source-'+str(n)+'.html'
   (folder/('source-'+str(n)+'.html')).write_text(page(source.name,'<a href="index.html">全部文件 / All files</a><h1>'+html.escape(source.name)+'</h1><p>共 '+str(len(parts))+' 段。请逐段读取并报告缺失段，目录不等于全文。 / Read every part and report missing parts.</p><ol>'+''.join(links)+'</ol>'))
   directory.append('<li><a href="source-'+str(n)+'.html">'+html.escape(source.name)+'</a> ('+str(len(parts))+' parts)</li>')
