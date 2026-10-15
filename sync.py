@@ -52,6 +52,8 @@ save('index.html',index.encode());save('.nojekyll',b'')
 for lang,ps in pages.items():
  full=(out/('llms-full.'+lang+'.txt')).read_text()
  for p in ps:assert p['title'] in full, p['id']
-manifest={'source':SOURCE,'source_versions':{l:json.loads(v)['version'] for l,v in data.items()},'synced_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'chapters':sum(map(len,pages.values())),'downloads':len(assets),'files':{str(p.relative_to(out)):hashlib.sha256(p.read_bytes()).hexdigest() for p in out.rglob('*') if p.is_file()}}
+from documents import export_documents
+exported=export_documents(out,TARGET,PREFIX)
+manifest={'document_texts':exported,'source':SOURCE,'source_versions':{l:json.loads(v)['version'] for l,v in data.items()},'synced_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'chapters':sum(map(len,pages.values())),'downloads':len(assets),'files':{str(p.relative_to(out)):hashlib.sha256(p.read_bytes()).hexdigest() for p in out.rglob('*') if p.is_file()}}
 save('sync-status.json',json.dumps(manifest,ensure_ascii=False,indent=2).encode())
 print('Verified',manifest['chapters'],'chapters and',len(assets),'assets')
