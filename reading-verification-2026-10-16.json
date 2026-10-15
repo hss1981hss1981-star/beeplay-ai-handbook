@@ -1,0 +1,24 @@
+{
+  "date": "2026-10-16",
+  "tested_content_version": 85,
+  "test_client": "Gemini desktop",
+  "method": "Batched live reading of all 105 parent segments. Truncated Chinese parents 01-005 through 01-015 completed via all 31 explicit short-subpart URLs. Compared per-segment body-tail receipts with fetched source text; corrected quote inaccuracies for 01-015 and 02-027.",
+  "sources": 7,
+  "parent_segments": 105,
+  "complete": 105,
+  "partial": 0,
+  "failed": 0,
+  "unread": 0,
+  "integrity": {
+    "parent_sha256_matches": 105,
+    "short_subparts_verified": 307,
+    "reconstructed_source_sha256_matches": 7
+  },
+  "limits": "This is an observed client reading test with verified receipts, not inspection of model internals or a guarantee for every AI tool. Future content versions require a fresh coverage report.",
+  "fixes": [
+    "Explicit short-subpart URLs in website copy prompt; all children required before parent counts as complete.",
+    "Keep coverage tied to content version; no mixing old-version receipts.",
+    "Replace obsolete T27 pending fallback wording with confirmed D29.",
+    "Clarify T26 existing service units and new-game D49 version binding."
+  ]
+}
