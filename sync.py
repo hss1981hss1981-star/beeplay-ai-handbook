@@ -2,16 +2,24 @@ from pathlib import Path
 from urllib.request import Request,urlopen
 from urllib.parse import urljoin,urlsplit,unquote
 from concurrent.futures import ThreadPoolExecutor
-import json,re,hashlib,datetime
+import json,re,hashlib,datetime,subprocess,sys,shutil
 SOURCE='https://beeplay-product-map.hss1981hss1981.chatgpt.site'
 TARGET='https://hss1981hss1981-star.github.io/beeplay-ai-handbook'
 PREFIX='/beeplay-ai-handbook'
-out=Path('public');out.mkdir(exist_ok=True)
+out=Path('public');shutil.rmtree(out,ignore_errors=True);out.mkdir()
 def fetch(path):
+ local=Path('dist')/path
+ if local.is_file():return local.read_bytes()
  with urlopen(Request(SOURCE+'/'+path,headers={'User-Agent':'BeePlay-Handbook-Sync/1.0'}),timeout=60) as r:return r.read()
 def save(path,data):
  p=out/path;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(data)
+shutil.rmtree('dist',ignore_errors=True)
+Path('dist').mkdir()
+for name in ['content.json','content.en.json','reference-data.js','index.html']:
+ (Path('dist')/name).write_bytes(fetch(name))
+subprocess.run([sys.executable,'scripts/build-readable.py'],check=True)
 data={lang:fetch(name) for lang,name in [('zh','content.json'),('en','content.en.json')]}
+assert len({json.loads(raw)['version'] for raw in data.values()})==1, 'Language versions differ; retry next run'
 pages={lang:json.loads(raw)['pages'] for lang,raw in data.items()}
 assert {p['id'] for p in pages['zh']}=={p['id'] for p in pages['en']}
 paths=['read/index.html','llms.txt','llms-full.txt','llms-full.zh.txt','llms-full.en.txt','robots.txt','sitemap.xml']
